@@ -15,3 +15,12 @@ After adding URL
 After Sucessful Installation select the select teh Arducam_esp32_uno board and complie the program
 
 [Reference](https://github.com/ArduCAM/ArduCAM_ESP32S_UNO)
+
+## Pushing to drive
+
+1. capture image to SPIFFS
+2. Read image from SPIFFs
+3. If image found in storage, convert it to base64 (header included)
+4. Post to Drive
+
+[Reference](https://github.com/fustyles/Arduino/tree/master/ESP32-CAM_SD_GoogleDrive)
