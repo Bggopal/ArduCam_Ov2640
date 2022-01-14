@@ -12,7 +12,6 @@
 // This program requires the ArduCAM V4.0.0 (or later) library and ArduCAM ESP8266 2MP/5MP shield
 // and use Arduino IDE 1.8.1 compiler or above
 
-//https://script.google.com/macros/s/AKfycbyPsgB0ZXwPGi626o5L79yzt7XSy2uYj3n0CkZy8joJ46Z65no/exec
 
 #include <ArduCAM.h>
 #include <WiFi.h>
@@ -69,18 +68,6 @@ String myFilename = "&myFilename=ESP32-CAM.jpg";    //設定Google drive存放�
 String myImage = "&myFile=";
 
 
-/*void initWiFi() {
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  Serial.print("Connecting to WiFi ..");
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print('.');
-    delay(500);
-  }
-  Serial.println("WiFi connected");
-  Serial.println("");
-  Serial.println(WiFi.localIP());
-}*/
 
 void capture2SD(fs::FS &fs, const char * path) {
   File file ;
@@ -153,6 +140,7 @@ void capture2SD(fs::FS &fs, const char * path) {
     }
   }
 }
+
 void setup() {
   uint8_t vid, pid;
   uint8_t temp;
@@ -243,6 +231,8 @@ void setup() {
 #endif
   delay(1000);
 }
+
+
 void loop() {
   sprintf((char*)pname, "/%05d.jpg", k);
   capture2SD(SPIFFS, pname);
@@ -256,6 +246,7 @@ void loop() {
   delay(5000);
 
 }
+
 
 void listDir(fs::FS &fs, const char * dirname, uint8_t levels) {
   Serial.printf("Listing directory: %s\r\n", dirname);
@@ -288,6 +279,7 @@ void listDir(fs::FS &fs, const char * dirname, uint8_t levels) {
   }
 }
 
+
 void readImage(fs::FS &fs, const char * path) {
   Serial.printf("Reading Image: %s\r\n", path);
   File file = fs.open(path);
@@ -313,6 +305,8 @@ void deleteFile(fs::FS &fs, const char * path){
         Serial.println("- delete failed");
     }
 }
+
+
 
 String SendCapturedImage2GoogleDrive(fs::FS &fs, const char * path) {
 
@@ -387,6 +381,7 @@ String SendCapturedImage2GoogleDrive(fs::FS &fs, const char * path) {
   }
   return getBody;
 }
+
 
 String urlencode(String str)
 {
