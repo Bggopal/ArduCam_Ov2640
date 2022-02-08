@@ -18,6 +18,7 @@
 #include <SPI.h>
 #include "FS.h"
 #include "SPIFFS.h"
+#include "mbedtls/base64.h"
 #include "Base64.h"
 #include <ArduCAM.h>
 #include "memorysaver.h"
@@ -36,7 +37,7 @@
 
 #define FORMAT_SPIFFS_IF_FAILED true
 
-const int CAM_POWER_ON = D10;
+const int CAM_POWER_ON = 10;
 // set GPIO16 as the slave select :
 const int CS = 5;
 //Version 2,set GPIO0 as the slave select :
@@ -63,7 +64,7 @@ const char* password = "bbbbbbbb";
 String myScript = "/macros/s/AKfycbyPsgB0ZXwPGi626o5L79yzt7XSy2uYj3n0CkZy8joJ46Z65no/exec";    //設定Google Script路徑
 //https://script.google.com/macros/s/AKfycbyPsgB0ZXwPGi626o5L79yzt7XSy2uYj3n0CkZy8joJ46Z65no/exec
 String myFoldername = "&myFoldername=ESP32-CAM";    //設定Google drive存放影像資料夾名
-String myFilename = "&myFilename=ESP32-CAM.jpg";    //設定Google drive存放影像檔名 (檔名格式：上傳時間+"_"+檔名)
+String myFilename = "";    //設定Google drive存放影像檔名 (檔名格式：上傳時間+"_"+檔名)
 String myImage = "&myFile=";
 
 void capture2SD(fs::FS &fs, const char * path) {
@@ -280,7 +281,8 @@ void readImage(fs::FS &fs, const char * path) {
 
   Serial.println("- read from file:");
   while (file.available()) {
-    Serial.println(file.read(), HEX);
+    Serial.println("read succsseful");
+    break;
   }
 }
 
@@ -311,16 +313,18 @@ String SendCapturedImage2GoogleDrive(fs::FS &fs, const char * path) {
   {
     base64_encode(output, (input++), 3);
     if (i%3==0) imageFile += urlencode(String(output));
-    Serial.print(i);
+    Serial.print(".");
   }
 
   String Data = myFoldername+myFilename+myImage;
   const char* myDomain = "script.google.com";
+  Serial.print("Data to Post: ");
+  Serial.println(Data);
   String getAll="", getBody = "";
     
   Serial.println("Connect to " + String(myDomain));
   WiFiClientSecure client_tcp;
-  //client_tcp.setInsecure();   //run version 1.0.5 or above
+  client_tcp.setInsecure();   //run version 1.0.5 or above
   
   if (client_tcp.connect(myDomain, 443)) {
     Serial.println("Connection successful");
@@ -334,7 +338,8 @@ String SendCapturedImage2GoogleDrive(fs::FS &fs, const char * path) {
     
     client_tcp.print(Data);
     int Index;
-    for (Index = 0; Index < imageFile.length(); Index = Index+1000) {
+    for (Index = 0; Index < imageFile.length(); Index = Index+1000) 
+    {
       client_tcp.print(imageFile.substring(Index, Index+1000));
     }
         
