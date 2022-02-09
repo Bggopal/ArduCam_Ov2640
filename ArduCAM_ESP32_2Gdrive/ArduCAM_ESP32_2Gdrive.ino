@@ -61,7 +61,7 @@ ArduCAM myCAM(OV5642, CS);
 const char* ssid = "Nokia 6";
 const char* password = "bbbbbbbb";
 
-String myScript = "/macros/s/AKfycbyPsgB0ZXwPGi626o5L79yzt7XSy2uYj3n0CkZy8joJ46Z65no/exec";    //設定Google Script路徑
+String myScript = "/macros/s/AKfycbx8tGFpR2jGJ7GgmV_3nWz_-eW2yq7BeEQrCKwH1SyfZr3Dkw6y_P3J26iYHXX3ZaMe/exec";    //設定Google Script路徑
 //https://script.google.com/macros/s/AKfycbyPsgB0ZXwPGi626o5L79yzt7XSy2uYj3n0CkZy8joJ46Z65no/exec
 String myFoldername = "&myFoldername=ESP32-CAM";    //設定Google drive存放影像資料夾名
 String myFilename = "";    //設定Google drive存放影像檔名 (檔名格式：上傳時間+"_"+檔名)
@@ -218,7 +218,7 @@ void setup() {
   myCAM.set_format(JPEG);
   myCAM.InitCAM();
 #if defined (OV2640_MINI_2MP)||defined (OV2640_MINI_2MP_PLUS) || defined (OV2640_CAM)
-  myCAM.OV2640_set_JPEG_size(OV2640_320x240);
+  myCAM.OV2640_set_JPEG_size(OV2640_1280x1024);
 #elif defined (OV5640_MINI_5MP_PLUS) || defined (OV5640_CAM)
   myCAM.write_reg(ARDUCHIP_TIM, VSYNC_LEVEL_MASK);   //VSYNC is active HIGH
   myCAM.OV5640_set_JPEG_size(OV5640_320x240);
@@ -313,8 +313,10 @@ String SendCapturedImage2GoogleDrive(fs::FS &fs, const char * path) {
   {
     base64_encode(output, (input++), 3);
     if (i%3==0) imageFile += urlencode(String(output));
-    Serial.print(".");
+    //Serial.print(".");
   }
+
+  //Serial.println(imageFile);
 
   String Data = myFoldername+myFilename+myImage;
   const char* myDomain = "script.google.com";
