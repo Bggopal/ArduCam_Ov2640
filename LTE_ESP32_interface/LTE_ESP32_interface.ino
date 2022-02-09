@@ -4,6 +4,8 @@ static const int RXPin = 16, TXPin = 17; // UART pinout
 
 HardwareSerial MOD(1); // The MODial connection to the Neoway device
 
+static String token = "BBukG_iHpgqOlkd9ljhOzw793cAjNmy6vRytgXEwoQaq4qgP60gYAojdvDUKKtn8pekxM7mBC9Atj3WY_Oa4HJTjixQsDasIummiU_NLqP3rJxR35KoIgWg7wn2DyKJjWu2x9AM";
+
 void setup() {
   Serial.begin(115200);
   MOD.begin(115200, SERIAL_8N1, RXPin, TXPin );
