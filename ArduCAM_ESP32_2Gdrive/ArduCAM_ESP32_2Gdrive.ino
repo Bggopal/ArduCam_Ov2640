@@ -61,10 +61,10 @@ ArduCAM myCAM(OV5642, CS);
 const char* ssid = "Nokia 6";
 const char* password = "bbbbbbbb";
 
-String myScript = "/macros/s/AKfycbx8tGFpR2jGJ7GgmV_3nWz_-eW2yq7BeEQrCKwH1SyfZr3Dkw6y_P3J26iYHXX3ZaMe/exec";    //設定Google Script路徑
+String myScript = "/macros/s/AKfycbx8tGFpR2jGJ7GgmV_3nWz_-eW2yq7BeEQrCKwH1SyfZr3Dkw6y_P3J26iYHXX3ZaMe/exec";    //Google Script Deployment ID
 //https://script.google.com/macros/s/AKfycbyPsgB0ZXwPGi626o5L79yzt7XSy2uYj3n0CkZy8joJ46Z65no/exec
-String myFoldername = "&myFoldername=ESP32-CAM";    //設定Google drive存放影像資料夾名
-String myFilename = "";    //設定Google drive存放影像檔名 (檔名格式：上傳時間+"_"+檔名)
+String myFoldername = "&myFoldername=ESP32-CAM";    // Set the folder name for storing images in Google drive
+String myFilename = "&myFilename=ESP32-CAM.jpg";    // Set the Google drive to store the image file name (file name format: upload time + "_" + file name)
 String myImage = "&myFile=";
 
 void capture2SD(fs::FS &fs, const char * path) {
