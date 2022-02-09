@@ -7,11 +7,14 @@
 const char* ssid = "Nokia 6";
 const char* password = "bbbbbbbb";
 
-WiFiClientSecure client;
+static String token = "BBukG_iHpgqOlkd9ljhOzw793cAjNmy6vRytgXEwoQaq4qgP60gYAojdvDUKKtn8pekxM7mBC9Atj3WY_Oa4HJTjixQsDasIummiU_NLqP3rJxR35KoIgWg7wn2DyKJjWu2x9AM";
+WiFiClientSecure client_cp;
+
+//client_cp.setInsecure();
 
 void uploadData(String content) {
   Serial.println("Dropbox connecting...");
-  if (client.connect("content.dropboxapi.com", 443)) {
+  if (client_cp.connect("content.dropboxapi.com", 443)) {
     Serial.println("Dropbox connected");
 
     // Сформировать имя файла по шаблону времени
@@ -25,23 +28,23 @@ void uploadData(String content) {
     Serial.println(file_name);
 
     // Отправка запроса
-    client.println("POST /2/files/upload HTTP/1.1");
-    client.println("Host: content.dropboxapi.com");
-    client.println("Authorization: Bearer 8IXfthdHTkkAAAAAAAAAAf-IIMjdzq9i0Q6zGFQfmD5ixCA9UAR_YemqPKQM9Vb1");
+    client_cp.println("POST /2/files/upload HTTP/1.1");
+    client_cp.println("Host: content.dropboxapi.com");
+    client_cp.println("Authorization: Bearer token");
     char dropbox_args[255] = {0};
     sprintf(dropbox_args,
             "{\"path\": \"/%s\", \"mode\": \"overwrite\", \"autorename\": true, \"mute\": false}", file_name);
-    client.print("Dropbox-API-Arg: ");
-    client.println(dropbox_args);
-    client.println("Content-Type: application/octet-stream");
-    client.print("Content-Length: ");
-    client.println(content.length());
-    client.println();
-    client.println(content);
+    client_cp.print("Dropbox-API-Arg: ");
+    client_cp.println(dropbox_args);
+    client_cp.println("Content-Type: application/octet-stream");
+    client_cp.print("Content-Length: ");
+    client_cp.println(content.length());
+    client_cp.println();
+    client_cp.println(content);
 
     delay(5000);
 
-    client.stop();
+    client_cp.stop();
     Serial.println("Disconnect");
     Serial.println();
   } else {
