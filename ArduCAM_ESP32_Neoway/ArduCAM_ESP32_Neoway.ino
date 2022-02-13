@@ -68,7 +68,7 @@ ArduCAM myCAM(OV5642, CS);
 /*const char* ssid = "Nokia 6";
 const char* password = "bbbbbbbb";*/
 
-String myScript = "/macros/s/AKfycbyPsgB0ZXwPGi626o5L79yzt7XSy2uYj3n0CkZy8joJ46Z65no/exec";    //設定Google Script路徑
+String myScript = "/macros/s/AKfycbx8tGFpR2jGJ7GgmV_3nWz_-eW2yq7BeEQrCKwH1SyfZr3Dkw6y_P3J26iYHXX3ZaMe/exec";    //設定Google Script路徑
 //https://script.google.com/macros/s/AKfycbyPsgB0ZXwPGi626o5L79yzt7XSy2uYj3n0CkZy8joJ46Z65no/exec
 String myFoldername = "&myFoldername=ESP32-CAM";    //設定Google drive存放影像資料夾名
 String myFilename = "";    //設定Google drive存放影像檔名 (檔名格式：上傳時間+"_"+檔名)
@@ -307,7 +307,7 @@ String SendCapturedImage2GoogleDrive(fs::FS &fs, const char * path) {
 
   Serial.print("application to upload to cloud \n");
 
-  /*
+  
   Serial.printf("Reading Image: %s\r\n", path);
   File file = fs.open(path);
   uint8_t *fileinput;
@@ -334,7 +334,86 @@ String SendCapturedImage2GoogleDrive(fs::FS &fs, const char * path) {
   String getAll="", getBody = "";
     
   Serial.println("Connect to " + String(myDomain));
-  WiFiClientSecure client_tcp;
+
+  /*
+  MOD.print("AT+HTTPSCFG=\"sslversion\",2\r"); //https setting the destination
+  delay(100);
+  response();
+
+  MOD.print("AT+HTTPSCFG=\"authmode\",0\r"); //http setting the destination
+  delay(100);
+  response();*/
+
+  MOD.print("AT+HTTPSCFG?\r"); //http setting the destination
+  delay(100);
+  response();
+
+  MOD.print("AT+HTTPSCFG =?\r"); //http setting the destination
+  delay(100);
+  response();
+
+  MOD.println("AT+HTTPSPARA =url,"+String(myDomain)); //http setting the destination
+  delay(100);
+  response();
+
+  MOD.print("AT+HTTPSPARA =port,443\r"); //Querying Network Registration Information
+  delay(100);
+  response();
+
+  //The connection is set up successfully only after setting the destination address and port ID correctly.
+  MOD.print("AT+HTTPSSETUP\r"); //http setting the destination
+  delay(1000);
+  response();
+  Serial.println("Connection successful"); 
+
+  MOD.print("AT+HTTPSACTION=99,500\r"); //Querying Network Registration Information
+  delay(1000);
+  response();
+
+  MOD.print("POST " + myScript + " HTTP/1.1\r\n");
+  delay(100);
+  Serial.println("Send post");
+  MOD.print("Connection: close\r\n");
+  delay(100);
+  Serial.println("Send connection: close");
+  MOD.println("Host: " + String(myDomain));
+  delay(100);
+  Serial.println("Send Host");
+  MOD.println("Content-Length: " + String(Data.length()+imageFile.length()));
+  delay(100);
+  Serial.println("Send Content-Length");
+  MOD.println("Content-Type: application/x-www-form-urlencoded");
+  delay(100);
+  Serial.println("Send Content-Type");
+
+  MOD.println(""); 
+  MOD.print(Data);
+  //delay(100);
+  int Index;
+  for (Index = 0; Index < imageFile.length(); Index = Index+1000)
+  {
+    MOD.print(imageFile.substring(Index, Index+1000));
+  }
+  delay(100);
+
+  MOD.println("");
+  delay(2000);
+
+  while(1)
+  {
+    response();
+  }
+
+  response();
+  delay(2000);
+
+  response();
+  //MOD.print("AT+HTTPCLOSE\r"); //close the http connection 
+  delay(2000);
+  response();
+
+  delay(10000);
+  /*WiFiClientSecure client_tcp;
   client_tcp.setInsecure();   //run version 1.0.5 or above
   
   if (client_tcp.connect(myDomain, 443)) {
@@ -385,7 +464,7 @@ String SendCapturedImage2GoogleDrive(fs::FS &fs, const char * path) {
 }
 
 
-/*String urlencode(String str)
+String urlencode(String str)
 {
     String encodedString="";
     char c;
@@ -418,10 +497,12 @@ String SendCapturedImage2GoogleDrive(fs::FS &fs, const char * path) {
     }
     return encodedString;
 }
-*/
+
 
 void neoway_intilize()
 {
+  
+  delay(3000);
   Serial.println("Starting now......");
   delay(5000);
   MOD.print("AT\r"); //status of module
@@ -459,6 +540,36 @@ void neoway_intilize()
   delay(100);
   response();
   MOD.print("AT+BANDLOCK=?\r"); //Querying Network Registration Information
+  delay(100);
+  response();
+  MOD.print("AT+CREG=1\r"); //Querying Network Registration Information
+  delay(100);
+  response();
+  MOD.print("AT+CREG?\r"); //Querying Network Registration Information
+  delay(100);
+  response();  //Querying Network Registration Information response shuld be 1,1 (0,1 indicates imporper reg )
+  MOD.print("AT+CREG=?\r"); //Querying Network Registration Information
+  delay(100);
+  response(); //AT+CREG=? +CREG: (0-2) indicates tat this is tat
+  MOD.print("AT+XIIC=1\r"); 
+  delay(100);
+  response(); // establishing ppp connection
+  MOD.print("AT+XIIC?\r"); 
+  delay(100);
+  response(); //AT+XIIC?  quering the ppp connection will output the ip 
+  MOD.print("AT+NETAPN?\r"); 
+  delay(100);
+  response(); //AT+NETAPN? // shows the apn details
+  MOD.print("AT^SYSINFO\r"); 
+  /*Obtaining System Information 
+   * response belike = ^SYSINFO: 2,3,0,9,1
+   * <CR><LF>^SYSINFO:<srv_status>,<srv_domain>,<roam_status>,<sys_mode>,<sim_state>[,[<reserve>],<sys_submode>] <CR><LF><CR><LF>OK<CR><LF>
+   * 2 - service
+   * 3 -  PS + CS
+   * 0/1 - No Roaming/ Roaming
+   * 9 - LTE mode
+   * 1 - valid
+   */
   delay(100);
   response();
 }
