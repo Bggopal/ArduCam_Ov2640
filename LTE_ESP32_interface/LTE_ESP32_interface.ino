@@ -89,17 +89,23 @@ void setup() {
 
 void loop() 
 {
-  MOD.print("AT+HTTPPARA =url,script.google.com\r"); //http setting the destination
+  MOD.print("AT+HTTPSPARA =url,script.google.com\r"); //http setting the destination
   delay(1000);
   response();
 
   //The connection is set up successfully only after setting the destination address and port ID correctly.
+  MOD.print("AT+HTTPSPARA =port,443\r"); //http setting the destination
+  delay(500);
+  response();
+  MOD.print("AT+HTTPSSETUP\r"); //Querying Network Registration Information
+  delay(1000);
+  response();
 
-  MOD.print("AT+HTTPSETUP \r"); //Querying Network Registration Information
-  delay(3000);
+  MOD.print("AT+HTTPSACTION=99,500\r"); //Querying Network Registration Information
+  delay(1000);
   response();
   
-  MOD.print("AT+HTTPCLOSE \r"); //close the http connection 
+  MOD.print("AT+HTTPCLOSE\r"); //close the http connection 
   delay(5000);
   response();
 

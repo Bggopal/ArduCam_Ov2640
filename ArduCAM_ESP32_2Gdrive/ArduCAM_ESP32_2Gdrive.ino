@@ -62,7 +62,7 @@ const char* ssid = "Nokia 6";
 const char* password = "bbbbbbbb";
 
 String myScript = "/macros/s/AKfycbx8tGFpR2jGJ7GgmV_3nWz_-eW2yq7BeEQrCKwH1SyfZr3Dkw6y_P3J26iYHXX3ZaMe/exec";    //Google Script Deployment ID
-//https://script.google.com/macros/s/AKfycbyPsgB0ZXwPGi626o5L79yzt7XSy2uYj3n0CkZy8joJ46Z65no/exec
+//https://script.google.com/macros/s/AKfycbx8tGFpR2jGJ7GgmV_3nWz_-eW2yq7BeEQrCKwH1SyfZr3Dkw6y_P3J26iYHXX3ZaMe/exec
 String myFoldername = "&myFoldername=ESP32-CAM";    // Set the folder name for storing images in Google drive
 String myFilename = "&myFilename=ESP32-CAM.jpg";    // Set the Google drive to store the image file name (file name format: upload time + "_" + file name)
 String myImage = "&myFile=";
@@ -326,7 +326,7 @@ String SendCapturedImage2GoogleDrive(fs::FS &fs, const char * path) {
     
   Serial.println("Connect to " + String(myDomain));
   WiFiClientSecure client_tcp;
-  client_tcp.setInsecure();   //run version 1.0.5 or above
+  //client_tcp.setInsecure();   //run version 1.0.5 or above
   
   if (client_tcp.connect(myDomain, 443)) {
     Serial.println("Connection successful");
