@@ -1,23 +1,28 @@
-// Подключаем библиотеки
-#include "WiFi.h"
+// libraries
+#include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <time.h>
 
-// Указываем идентификатор и пароль от своей WiFi-сети
+// Specify the ID and password from your WiFi network
 const char* ssid = "Nokia 6";
 const char* password = "bbbbbbbb";
 
-static String token = "BBukG_iHpgqOlkd9ljhOzw793cAjNmy6vRytgXEwoQaq4qgP60gYAojdvDUKKtn8pekxM7mBC9Atj3WY_Oa4HJTjixQsDasIummiU_NLqP3rJxR35KoIgWg7wn2DyKJjWu2x9AM";
+static String token = "sl.BCtWHA9L8l71jeVq8mnlpvgeGeK3NVtNSoKW6qzjShnWl0c1_cLdTWJ9ZhcILcw071YJRo7PcNhQzluylKCTwUScPSWdx9TGg2DNIJ5AEOYdpKtRQg5n8MHxXjQHxMHnM_8aBmvW8TQ";
 WiFiClientSecure client_cp;
 
 //client_cp.setInsecure();
 
 void uploadData(String content) {
   Serial.println("Dropbox connecting...");
+
+  String getAll="", getBody = "";
+
+  client_cp.setInsecure();
+  
   if (client_cp.connect("content.dropboxapi.com", 443)) {
     Serial.println("Dropbox connected");
 
-    // Сформировать имя файла по шаблону времени
+    // Generate a filename from a time pattern
     time_t now = time(nullptr);
     struct tm timeinfo;
     gmtime_r(&now, &timeinfo);
@@ -27,13 +32,14 @@ void uploadData(String content) {
     Serial.print("Upload ");
     Serial.println(file_name);
 
-    // Отправка запроса
+    // Sending a request
     client_cp.println("POST /2/files/upload HTTP/1.1");
     client_cp.println("Host: content.dropboxapi.com");
-    client_cp.println("Authorization: Bearer token");
+    client_cp.println("Authorization: Bearer "+token);
     char dropbox_args[255] = {0};
-    sprintf(dropbox_args,
-            "{\"path\": \"/%s\", \"mode\": \"overwrite\", \"autorename\": true, \"mute\": false}", file_name);
+    //"path": "/Test","mode": "add","autorename": true,"mute": false
+    sprintf(dropbox_args, "{\"path\": \"/%s\", \"mode\": \"add\", \"autorename\": true, \"mute\": false}", file_name);
+    Serial.println(dropbox_args);
     client_cp.print("Dropbox-API-Arg: ");
     client_cp.println(dropbox_args);
     client_cp.println("Content-Type: application/octet-stream");
@@ -41,6 +47,28 @@ void uploadData(String content) {
     client_cp.println(content.length());
     client_cp.println();
     client_cp.println(content);
+
+    int waitTime = 10000;   // timeout 10 seconds
+    long startTime = millis();
+    boolean state = false;
+    
+    while ((startTime + waitTime) > millis()) {
+      Serial.print(".");
+      delay(100);      
+      while (client_cp.available()) {
+          char c = client_cp.read();
+          if (state==true) getBody += String(c);        
+          if (c == '\n') {
+            if (getAll.length()==0) state=true; 
+            getAll = "";
+          } else if (c != '\r')
+            getAll += String(c);
+          startTime = millis();
+       }
+       if (getBody.length()>0) break;
+    }
+    client_cp.stop();
+    Serial.println(getBody);
 
     delay(5000);
 
@@ -72,7 +100,7 @@ void setup() {
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 
-  // Установка времени через SMTP
+  // Setting the time via SMTP
   Serial.print("Setting time using SNTP");
   configTime(8 * 3600, 0, "pool.ntp.org", "time.nist.gov");
   time_t now = time(nullptr);
@@ -85,17 +113,17 @@ void setup() {
 
   Serial.println("done");
 
-  // Загрузка данных #1
+  // Data upload #1
   uploadData(String("Data from ESP32 - this is a test 1"));
 
   delay(5000);
 
-  // Загрузка данных #2
+  // Data upload #2
   uploadData(String("Data from ESP32 - this is a test 2"));
 
   delay(5000);
 
-  // Загрузка данных #3
+  // Data upload #3
   uploadData(String("Data from ESP32 - this is a test 3"));
 }
 
