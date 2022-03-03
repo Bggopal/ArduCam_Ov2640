@@ -61,7 +61,7 @@ ArduCAM myCAM(OV5642, CS);
 const char* ssid = "Nokia 6";
 const char* password = "bbbbbbbb";
 
-String myScript = "/macros/s/AKfycbx8tGFpR2jGJ7GgmV_3nWz_-eW2yq7BeEQrCKwH1SyfZr3Dkw6y_P3J26iYHXX3ZaMe/exec";    //Google Script Deployment ID
+String myScript = "/macros/s/AKfycbx8tGFpR2jGJ7GgmV_3nWz_-eW2yq7BeEQrCKwH1SyfZr3Dkw6y_P3J26iYHXX3ZaMe/exec";    
 //https://script.google.com/macros/s/AKfycbx8tGFpR2jGJ7GgmV_3nWz_-eW2yq7BeEQrCKwH1SyfZr3Dkw6y_P3J26iYHXX3ZaMe/exec
 String myFoldername = "&myFoldername=ESP32-CAM";    // Set the folder name for storing images in Google drive
 String myFilename = "&myFilename=ESP32-CAM.jpg";    // Set the Google drive to store the image file name (file name format: upload time + "_" + file name)
@@ -218,7 +218,7 @@ void setup() {
   myCAM.set_format(JPEG);
   myCAM.InitCAM();
 #if defined (OV2640_MINI_2MP)||defined (OV2640_MINI_2MP_PLUS) || defined (OV2640_CAM)
-  myCAM.OV2640_set_JPEG_size(OV2640_1280x1024);
+  myCAM.OV2640_set_JPEG_size(OV2640_1280x1024); 
 #elif defined (OV5640_MINI_5MP_PLUS) || defined (OV5640_CAM)
   myCAM.write_reg(ARDUCHIP_TIM, VSYNC_LEVEL_MASK);   //VSYNC is active HIGH
   myCAM.OV5640_set_JPEG_size(OV5640_320x240);
@@ -316,6 +316,9 @@ String SendCapturedImage2GoogleDrive(fs::FS &fs, const char * path) {
     //Serial.print(".");
   }
 
+  Serial.print("Here it is base64 string");
+  Serial.println(imageFile);
+
   //Serial.println(imageFile);
 
   String Data = myFoldername+myFilename+myImage;
@@ -326,8 +329,9 @@ String SendCapturedImage2GoogleDrive(fs::FS &fs, const char * path) {
     
   Serial.println("Connect to " + String(myDomain));
   WiFiClientSecure client_tcp;
-  //client_tcp.setInsecure();   //run version 1.0.5 or above
-  
+  client_tcp.setInsecure();   //run version 1.0.5 or above
+  Serial.print("Size is here ");
+  Serial.println(String(Data.length()+imageFile.length()));
   if (client_tcp.connect(myDomain, 443)) {
     Serial.println("Connection successful");
      

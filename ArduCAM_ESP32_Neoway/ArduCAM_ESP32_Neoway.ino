@@ -66,7 +66,7 @@ ArduCAM myCAM(OV5642, CS);
 #endif
 
 /*const char* ssid = "Nokia 6";
-const char* password = "bbbbbbbb";*/
+  const char* password = "bbbbbbbb";*/
 
 String myScript = "/macros/s/AKfycbx8tGFpR2jGJ7GgmV_3nWz_-eW2yq7BeEQrCKwH1SyfZr3Dkw6y_P3J26iYHXX3ZaMe/exec";    //設定Google Script路徑
 //https://script.google.com/macros/s/AKfycbyPsgB0ZXwPGi626o5L79yzt7XSy2uYj3n0CkZy8joJ46Z65no/exec
@@ -243,7 +243,7 @@ void loop() {
   readImage(SPIFFS, pname);
   SendCapturedImage2GoogleDrive(SPIFFS, pname);
   deleteFile(SPIFFS, pname);
-   k++;
+  k++;
   delay(5000);
 
 }
@@ -294,20 +294,20 @@ void readImage(fs::FS &fs, const char * path) {
   }
 }
 
-void deleteFile(fs::FS &fs, const char * path){
-    Serial.printf("Deleting file: %s\r\n", path);
-    if(fs.remove(path)){
-        Serial.println("- file deleted");
-    } else {
-        Serial.println("- delete failed");
-    }
+void deleteFile(fs::FS &fs, const char * path) {
+  Serial.printf("Deleting file: %s\r\n", path);
+  if (fs.remove(path)) {
+    Serial.println("- file deleted");
+  } else {
+    Serial.println("- delete failed");
+  }
 }
 
 String SendCapturedImage2GoogleDrive(fs::FS &fs, const char * path) {
 
   Serial.print("application to upload to cloud \n");
 
-  
+
   Serial.printf("Reading Image: %s\r\n", path);
   File file = fs.open(path);
   uint8_t *fileinput;
@@ -320,39 +320,39 @@ String SendCapturedImage2GoogleDrive(fs::FS &fs, const char * path) {
   char *input = (char *)fileinput;
   String imageFile = "data:image/jpeg;base64,";
   char output[base64_enc_len(3)];
-  for (int i = 0; i<fileSize;i++)
+  for (int i = 0; i < fileSize; i++)
   {
     base64_encode(output, (input++), 3);
-    if (i%3==0) imageFile += urlencode(String(output));
+    if (i % 3 == 0) imageFile += urlencode(String(output));
     Serial.print(".");
   }
 
-  String Data = myFoldername+myFilename+myImage;
+  String Data = myFoldername + myFilename + myImage;
   const char* myDomain = "script.google.com";
   Serial.print("Data to Post: ");
   Serial.println(Data);
-  String getAll="", getBody = "";
-    
+  String getAll = "", getBody = "";
+
   Serial.println("Connect to " + String(myDomain));
 
   /*
-  MOD.print("AT+HTTPSCFG=\"sslversion\",2\r"); //https setting the destination
-  delay(100);
-  response();
+    MOD.print("AT+HTTPSCFG=\"sslversion\",2\r"); //https setting the destination
+    delay(100);
+    response();
 
-  MOD.print("AT+HTTPSCFG=\"authmode\",0\r"); //http setting the destination
-  delay(100);
-  response();*/
+    MOD.print("AT+HTTPSCFG=\"authmode\",0\r"); //http setting the destination
+    delay(100);
+    response();*/
 
-  MOD.print("AT+HTTPSCFG?\r"); //http setting the destination
-  delay(100);
-  response();
+  /*MOD.print("AT+HTTPSCFG?\r"); //http setting the destination
+    delay(100);
+    response();
 
-  MOD.print("AT+HTTPSCFG =?\r"); //http setting the destination
-  delay(100);
-  response();
+    MOD.print("AT+HTTPSCFG =?\r"); //http setting the destination
+    delay(100);
+    response();*/
 
-  MOD.println("AT+HTTPSPARA =url,"+String(myDomain)); //http setting the destination
+  MOD.println("AT+HTTPSPARA =url," + String(myDomain)); //http setting the destination
   delay(100);
   response();
 
@@ -364,87 +364,88 @@ String SendCapturedImage2GoogleDrive(fs::FS &fs, const char * path) {
   MOD.print("AT+HTTPSSETUP\r"); //http setting the destination
   delay(1000);
   response();
-  Serial.println("Connection successful"); 
+  Serial.println("Connection successful");
 
-  MOD.print("AT+HTTPSACTION=99,500\r"); //Querying Network Registration Information
-  delay(1000);
+  MOD.println("AT+HTTPSACTION=99,2040"); //Querying Network Registration Information
+  delay(100);
   response();
 
-  MOD.print("POST " + myScript + " HTTP/1.1\r\n");
-  delay(100);
-  Serial.println("Send post");
-  MOD.print("Connection: close\r\n");
-  delay(100);
-  Serial.println("Send connection: close");
+  MOD.println("POST " + myScript + " HTTP/1.1");
   MOD.println("Host: " + String(myDomain));
-  delay(100);
-  Serial.println("Send Host");
-  MOD.println("Content-Length: " + String(Data.length()+imageFile.length()));
-  delay(100);
-  Serial.println("Send Content-Length");
+  MOD.println("Content-Length: " + String(Data.length() + imageFile.length()));
   MOD.println("Content-Type: application/x-www-form-urlencoded");
-  delay(100);
-  Serial.println("Send Content-Type");
+  MOD.println("Connection: keep-alive");
+  MOD.println();
 
-  MOD.println(""); 
   MOD.print(Data);
-  //delay(100);
   int Index;
-  for (Index = 0; Index < imageFile.length(); Index = Index+1000)
+  for (Index = 0; Index < imageFile.length(); Index = Index + 1000)
   {
-    MOD.print(imageFile.substring(Index, Index+1000));
+    MOD.print(imageFile.substring(Index, Index + 1000));
   }
-  delay(100);
 
-  MOD.println("");
   delay(2000);
+  response();
 
-  while(1)
+  while (1)
   {
-    response();
+    if (MOD.available())
+    {
+      Serial.println(MOD.readString());
+      break;
+    }
+  }
+
+  while (1)
+  {
+    if (MOD.available())
+    {
+      Serial.println(MOD.readString());
+      break;
+    }
   }
 
   response();
   delay(2000);
 
   response();
-  //MOD.print("AT+HTTPCLOSE\r"); //close the http connection 
+  //MOD.print("AT+HTTPCLOSE\r"); //close the http connection
   delay(2000);
   response();
 
   delay(10000);
   /*WiFiClientSecure client_tcp;
-  client_tcp.setInsecure();   //run version 1.0.5 or above
-  
-  if (client_tcp.connect(myDomain, 443)) {
+    client_tcp.setInsecure();   //run version 1.0.5 or above
+
+    if (client_tcp.connect(myDomain, 443)) {
     Serial.println("Connection successful");
-     
-    client_tcp.println("POST " + myScript + " HTTP/1.1");
-    client_tcp.println("Host: " + String(myDomain));
-    client_tcp.println("Content-Length: " + String(Data.length()+imageFile.length()));
-    client_tcp.println("Content-Type: application/x-www-form-urlencoded");
-    client_tcp.println("Connection: keep-alive");
-    client_tcp.println();
-    
-    client_tcp.print(Data);
+
+    MOD.println("POST " + myScript + " HTTP/1.1");
+    MOD.println("Host: " + String(myDomain));
+    MOD.println("Content-Length: " + String(Data.length()+imageFile.length()));
+    MOD.println("Content-Type: application/x-www-form-urlencoded");
+    MOD.println("Connection: keep-alive");
+    MOD.println();
+
+    MOD.print(Data);
     int Index;
-    for (Index = 0; Index < imageFile.length(); Index = Index+1000) 
+    for (Index = 0; Index < imageFile.length(); Index = Index+1000)
     {
-      client_tcp.print(imageFile.substring(Index, Index+1000));
+      MOD.print(imageFile.substring(Index, Index+1000));
     }
-        
+
     int waitTime = 10000;   // timeout 10 seconds
     long startTime = millis();
     boolean state = false;
-    
+
     while ((startTime + waitTime) > millis()) {
       Serial.print(".");
-      delay(100);      
+      delay(100);
       while (client_tcp.available()) {
           char c = client_tcp.read();
-          if (state==true) getBody += String(c);        
+          if (state==true) getBody += String(c);
           if (c == '\n') {
-            if (getAll.length()==0) state=true; 
+            if (getAll.length()==0) state=true;
             getAll = "";
           } else if (c != '\r')
             getAll += String(c);
@@ -454,54 +455,54 @@ String SendCapturedImage2GoogleDrive(fs::FS &fs, const char * path) {
     }
     client_tcp.stop();
     Serial.println(getBody);
-  }
-  else {
+    }
+    else {
     getBody="Connected to " + String(myDomain) + " failed.";
     Serial.println("Connected to " + String(myDomain) + " failed.");
-  }
-  return getBody;
+    }
+    return getBody;
   */
 }
 
 
 String urlencode(String str)
 {
-    String encodedString="";
-    char c;
-    char code0;
-    char code1;
-    char code2;
-    for (int i =0; i < str.length(); i++){
-      c=str.charAt(i);
-      if (c == ' '){
-        encodedString+= '+';
-      } else if (isalnum(c)){
-        encodedString+=c;
-      } else{
-        code1=(c & 0xf)+'0';
-        if ((c & 0xf) >9){
-            code1=(c & 0xf) - 10 + 'A';
-        }
-        c=(c>>4)&0xf;
-        code0=c+'0';
-        if (c > 9){
-            code0=c - 10 + 'A';
-        }
-        code2='\0';
-        encodedString+='%';
-        encodedString+=code0;
-        encodedString+=code1;
-        //encodedString+=code2;
+  String encodedString = "";
+  char c;
+  char code0;
+  char code1;
+  char code2;
+  for (int i = 0; i < str.length(); i++) {
+    c = str.charAt(i);
+    if (c == ' ') {
+      encodedString += '+';
+    } else if (isalnum(c)) {
+      encodedString += c;
+    } else {
+      code1 = (c & 0xf) + '0';
+      if ((c & 0xf) > 9) {
+        code1 = (c & 0xf) - 10 + 'A';
       }
-      yield();
+      c = (c >> 4) & 0xf;
+      code0 = c + '0';
+      if (c > 9) {
+        code0 = c - 10 + 'A';
+      }
+      code2 = '\0';
+      encodedString += '%';
+      encodedString += code0;
+      encodedString += code1;
+      //encodedString+=code2;
     }
-    return encodedString;
+    yield();
+  }
+  return encodedString;
 }
 
 
 void neoway_intilize()
 {
-  
+
   delay(3000);
   Serial.println("Starting now......");
   delay(5000);
@@ -527,16 +528,16 @@ void neoway_intilize()
   MOD.print("AT+NETDMSG\r"); //Querying Network Registration Information
   delay(100);
   response();
-  MOD.print("AT^SYSINFO\r"); 
-  /*Obtaining System Information 
-   * response belike = ^SYSINFO: 2,3,0,9,1
-   * <CR><LF>^SYSINFO:<srv_status>,<srv_domain>,<roam_status>,<sys_mode>,<sim_state>[,[<reserve>],<sys_submode>] <CR><LF><CR><LF>OK<CR><LF>
-   * 2 - service
-   * 3 -  PS + CS
-   * 0/1 - No Roaming/ Roaming
-   * 9 - LTE mode
-   * 1 - valid
-   */
+  MOD.print("AT^SYSINFO\r");
+  /*Obtaining System Information
+     response belike = ^SYSINFO: 2,3,0,9,1
+     <CR><LF>^SYSINFO:<srv_status>,<srv_domain>,<roam_status>,<sys_mode>,<sim_state>[,[<reserve>],<sys_submode>] <CR><LF><CR><LF>OK<CR><LF>
+     2 - service
+     3 -  PS + CS
+     0/1 - No Roaming/ Roaming
+     9 - LTE mode
+     1 - valid
+  */
   delay(100);
   response();
   MOD.print("AT+BANDLOCK=?\r"); //Querying Network Registration Information
@@ -551,25 +552,25 @@ void neoway_intilize()
   MOD.print("AT+CREG=?\r"); //Querying Network Registration Information
   delay(100);
   response(); //AT+CREG=? +CREG: (0-2) indicates tat this is tat
-  MOD.print("AT+XIIC=1\r"); 
+  MOD.print("AT+XIIC=1\r");
   delay(100);
   response(); // establishing ppp connection
-  MOD.print("AT+XIIC?\r"); 
+  MOD.print("AT+XIIC?\r");
   delay(100);
-  response(); //AT+XIIC?  quering the ppp connection will output the ip 
-  MOD.print("AT+NETAPN?\r"); 
+  response(); //AT+XIIC?  quering the ppp connection will output the ip
+  MOD.print("AT+NETAPN?\r");
   delay(100);
   response(); //AT+NETAPN? // shows the apn details
-  MOD.print("AT^SYSINFO\r"); 
-  /*Obtaining System Information 
-   * response belike = ^SYSINFO: 2,3,0,9,1
-   * <CR><LF>^SYSINFO:<srv_status>,<srv_domain>,<roam_status>,<sys_mode>,<sim_state>[,[<reserve>],<sys_submode>] <CR><LF><CR><LF>OK<CR><LF>
-   * 2 - service
-   * 3 -  PS + CS
-   * 0/1 - No Roaming/ Roaming
-   * 9 - LTE mode
-   * 1 - valid
-   */
+  MOD.print("AT^SYSINFO\r");
+  /*Obtaining System Information
+     response belike = ^SYSINFO: 2,3,0,9,1
+     <CR><LF>^SYSINFO:<srv_status>,<srv_domain>,<roam_status>,<sys_mode>,<sim_state>[,[<reserve>],<sys_submode>] <CR><LF><CR><LF>OK<CR><LF>
+     2 - service
+     3 -  PS + CS
+     0/1 - No Roaming/ Roaming
+     9 - LTE mode
+     1 - valid
+  */
   delay(100);
   response();
 }
@@ -584,7 +585,7 @@ void response()
 }
 
 /*void wifi_connect()
-{
+  {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   Serial.print("Connecting to WiFi ..");
@@ -595,4 +596,4 @@ void response()
   Serial.println("WiFi connected");
   Serial.println("");
   Serial.println(WiFi.localIP());
-}*/
+  }*/

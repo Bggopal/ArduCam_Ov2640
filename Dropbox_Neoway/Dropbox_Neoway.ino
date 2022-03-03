@@ -11,7 +11,7 @@ HardwareSerial MOD(1); // The MODial connection to the Neoway device
 //const char* ssid = "Nokia 6";
 //const char* password = "9746973398";
 
-static String token = "sl.BCtWHA9L8l71jeVq8mnlpvgeGeK3NVtNSoKW6qzjShnWl0c1_cLdTWJ9ZhcILcw071YJRo7PcNhQzluylKCTwUScPSWdx9TGg2DNIJ5AEOYdpKtRQg5n8MHxXjQHxMHnM_8aBmvW8TQ";
+static String token = "sl.BDHC-3Ue2iitOcrsn7-g7nlsktEh2-wpX7ZLisWzXEZZ87dZqhfZ4x7bCn10eNdafAnQn1wvfPv92l5wg7ko15E7ioalbh8OwDf4a75GL2LqWAoCocvwvRc3W3VbuM91HgXm270A7vQ";
 
 
 void uploadData(String content) {
@@ -67,7 +67,7 @@ void uploadData(String content) {
   MOD.println(content.length());
   MOD.println();
   MOD.println(content);
-  response();
+  //response();
 
   int waitTime = 10000;   // timeout 10 seconds
   long startTime = millis();
@@ -96,7 +96,7 @@ void uploadData(String content) {
   delay(5000);
 
   //client_cp.stop();
-  Serial.println("Disconnect");
+  //Serial.println("Disconnect");
   Serial.println();
 }
 
